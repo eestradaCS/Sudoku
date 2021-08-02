@@ -1,3 +1,4 @@
+#include <set>
 #include <vector>
 #include <algorithm>
 #include <iostream>
@@ -40,7 +41,7 @@ void Sudoku::display() const
 }
 
 /**********randomize**********
-feel free to ignore this for now as it is not currently functional
+randomly fills the sudoku with values from 1-9 (9 each)
 *****************************/
 void Sudoku::randomize()
 {
@@ -121,7 +122,6 @@ bool Sudoku::validate() const
 
 /******printValidity*****
 prints a statement to the console about the validity of the solution
-	I used it for debugging
 ************************/
 void Sudoku::printValidity() const
 {
@@ -130,7 +130,11 @@ void Sudoku::printValidity() const
 		cout << "not ";
 	cout << "valid." << endl;
 }
-
+/*****shuffleErrors******
+shuffles the nodes that cause the most errors around with each other
+finds all the errors and assigns an errorCount value
+@return - the sum of each of the values shuffled
+*////////////////////////
 int Sudoku::shuffleErrors()
 {
 	for (int row = 0; row < 9; row++)
@@ -263,6 +267,9 @@ int Sudoku::shuffleErrors()
 	return sumOfShuffled;
 }
 
+/*******strongShuffle*********
+shuffles around every error
+*/////////////////////////////
 void Sudoku::strongShuffle()
 {
 	vector<Node*> errorsToShuffle;
@@ -289,6 +296,9 @@ void Sudoku::strongShuffle()
 	}
 }
 
+/*********randomSwap********
+swaps a random error with a random node that does not give an error
+***************************/
 void Sudoku::randomSwap()
 {
 	vector<Node*> errorNodes;
@@ -313,6 +323,9 @@ void Sudoku::randomSwap()
 	errorlessNodes[0]->value = temp;
 }
 
+/********solveStochastic*******
+solves the sudoku problem by employing a stochastic algorithm
+*****************************/
 void Sudoku::solveStochastic()
 {
 	randomize();
@@ -341,6 +354,200 @@ void Sudoku::solveStochastic()
 		}
 		else
 			lastSumOfShuffled = currentSumOfShuffled;
-	//	display();
 	}
 }
+
+void Sudoku::publicSolveBT()
+{
+	solveBT(1);
+	return;
+}
+
+// /////////////////////////////////////////
+
+//Returns the set of numbers that are in the row asked for
+set<char> Sudoku::getRow(int row)
+{
+	set<char> output;
+	for (int i = 0; i < 9; i++) {
+		if (sudokuMatrix[row][i].value != '0')
+			output.insert(sudokuMatrix[row][i].value);
+	}
+	return output;
+}
+
+//Returns the set of numbers that are in the column asked for
+set<char> Sudoku::getColumn(int column)
+{
+	set<char> output;
+	for (int i = 0; i < 9; i++)
+		if (sudokuMatrix[i][column].value != '0')
+			output.insert(sudokuMatrix[i][column].value);
+	return output;
+	
+}
+
+//Returns the set of numbers that are associated in the given cell's corresponding 3x3
+set<char> Sudoku::getSquare(int row, int column)
+{
+	set<char> output;
+	int square;
+	if (row < 3) {
+		if (column < 3)
+			square = 1;
+		else if (column < 6)
+			square = 2;
+		else
+			square = 3;
+	}
+	else if (row < 6) {
+		if (column < 3)
+			square = 4;
+		else if (column < 6)
+			square = 5;
+		else
+			square = 6;
+
+	}
+	else {
+		if (column < 3)
+			square = 7;
+		else if (column < 6)
+			square = 8;
+		else
+			square = 9;
+	}
+	if (square == 1)
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				if (sudokuMatrix[i][j].value != '0') {
+					output.insert(sudokuMatrix[i][j].value);
+				}
+			}
+		}
+	else if (square == 2)
+		for (int i = 0; i < 3; i++) {
+			for (int j = 3; j < 6; j++) {
+				if (sudokuMatrix[i][j].value != '0')
+					output.insert(sudokuMatrix[i][j].value);
+			}
+		}
+	
+	else if (square == 3)
+		for (int i = 0; i < 3; i++) {
+			for (int j = 6; j < 9; j++) {
+				if (sudokuMatrix[i][j].value != '0')
+					output.insert(sudokuMatrix[i][j].value);
+			}
+		}
+	else if (square == 4)
+		for (int i = 3; i < 6; i++) {
+			for (int j = 0; j < 3; j++) {
+				if (sudokuMatrix[i][j].value != '0')
+					output.insert(sudokuMatrix[i][j].value);
+			}
+		}
+	else if (square == 5)
+		for (int i = 3; i < 6; i++) {
+			for (int j = 3; j < 6; j++) {
+				if (sudokuMatrix[i][j].value != '0')
+					output.insert(sudokuMatrix[i][j].value);
+			}
+		}
+	else if (square == 6)
+		for (int i = 3; i < 6; i++) {
+			for (int j = 6; j < 9; j++) {
+				if (sudokuMatrix[i][j].value != '0')
+					output.insert(sudokuMatrix[i][j].value);
+			}
+		}
+	else if (square == 7)
+		for (int i = 6; i < 9; i++) {
+			for (int j = 0; j < 3; j++) {
+				if (sudokuMatrix[i][j].value != '0')
+					output.insert(sudokuMatrix[i][j].value);
+			}
+		}
+	else if (square == 8)
+		for (int i = 6; i < 9; i++) {
+			for (int j = 3; j < 6; j++) {
+				if (sudokuMatrix[i][j].value != '0')
+					output.insert(sudokuMatrix[i][j].value);
+			}
+		}
+	else if (square == 9)
+		for (int i = 6; i < 9; i++) {
+			for (int j = 6; j < 9; j++) {
+				if (sudokuMatrix[i][j].value != '0')
+					output.insert(sudokuMatrix[i][j].value);
+			}
+		}
+	return output;
+	
+}
+
+//Does set subtraction to find the numbers that can be put into a cell. Returns empty set if no numbers can be placed.
+set<char> Sudoku::getChoices(int row, int column)
+{
+	//Set of numbers 1-9 - set(Row) - set(Column) - set(3x3) = applicable choices
+	set<char> digits;
+	for (int i = 1; i <= 9; i++)
+		digits.insert(i + 48);
+	set<char> choices;
+	set<char> cNum = getColumn(column);
+	set<char> rNum = getRow(row);
+	set<char> sNum = getSquare(row, column);
+	set<char> temp;
+	set<char> temp2;
+	set_difference(digits.begin(), digits.end(), cNum.begin(), cNum.end(), inserter(temp, temp.begin()));
+	set_difference(temp.begin(), temp.end(), rNum.begin(), rNum.end(), inserter(temp2, temp2.begin()));
+	set_difference(temp2.begin(), temp2.end(), sNum.begin(), sNum.end(), inserter(choices, choices.begin()));
+	return choices;
+}
+
+//Goes through the sudoku left to right, top to bottom; if number can be chosen to be put in cell, it will do so and call itself on the next cell.
+bool Sudoku::solveBT(int index)
+{
+	if (index > 81) { //Case where all cells are solved
+		cout << "Reached end of board" << endl;
+		return true;
+	}
+	if (indices.find(index) == indices.end()) {
+		cout << index << " is not found within the map" << endl;
+		return true;
+	}
+
+	int& row = indices.find(index)->second.first;
+	int& column = indices.find(index)->second.second;
+
+	if (sudokuMatrix[row][column].isHint) { //Skip Hint cells, as they won't be edited and are correct to begin with
+		cout << index << " is a hint" << endl;
+		return solveBT(index + 1);
+	}
+	set<char> choices = getChoices(row, column); //Get applicable numbers to put in cell
+
+	cout << "Choices for " << index << " are: " << endl; //Debug code
+	for (auto iter = choices.begin(); iter != choices.end(); iter++)
+		cout << *iter << ", ";
+
+	cout << endl;
+	for (auto iter = choices.begin(); iter != choices.end(); iter++) { //Iterate through applicable numbers, assign to cell, and try to solve next cell
+		sudokuMatrix[row][column].value = *iter;
+		if (solveBT(index + 1) == false) { //If a dead end was reached using the number chosen, use another applicable number
+			//cout << "Choosing " << *iter << " at " << index << " led to a dead end" << endl;
+			continue;
+		}
+		else { //Case where sudoku was solved using the cell's chosen number; returns true to conclude all nested calls
+			return true;
+		}
+	}
+	sudokuMatrix[row][column].value = '0'; //0 is assigned again to clean up wrong answers when backtracking
+
+	if (choices.empty()) //Returns false if no numbers can be put into a cell
+		return false;
+
+	return false; //Returns false if all applicable numbers lead to dead ends(paths that lead to a cell with no applicable numbers)
+
+}
+
+
