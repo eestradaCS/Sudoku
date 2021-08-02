@@ -10,18 +10,20 @@ constructs a Sudoku object with a string as input for hints
 **************************/
 Sudoku::Sudoku(string hints)
 {
+	int index = 1;
 	for (int i = 0; i < 9; i++)
 		hintValues[i] = 0;
 	for (int row = 0; row < 9; row++)
 	{
 		for (int col = 0; col < 9; col++)
 		{
-			if (hints[row * 9 + col] != '0')
-			{
-				sudokuMatrix[row][col].value = hints[row * 9 + col];
+			//cout << index << " will try to be emplaced" << endl;
+			indices.emplace(index, make_pair(row, col));
+			index++;
+			sudokuMatrix[row][col].value = hints[row * 9 + col];
+			if (sudokuMatrix[row][col].value != '0')
 				sudokuMatrix[row][col].isHint = true;
-				hintValues[hints[row * 9 + col] - 49]++;
-			}
+			hintValues[hints[row * 9 + col] - 49]++;
 		}
 	}
 }
