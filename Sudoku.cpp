@@ -511,11 +511,6 @@ set<char> Sudoku::getChoices(int row, int column)
 bool Sudoku::solveBT(int index)
 {
 	if (index > 81) { //Case where all cells are solved
-		cout << "Reached end of board" << endl;
-		return true;
-	}
-	if (indices.find(index) == indices.end()) {
-		cout << index << " is not found within the map" << endl;
 		return true;
 	}
 
@@ -523,20 +518,13 @@ bool Sudoku::solveBT(int index)
 	int& column = indices.find(index)->second.second;
 
 	if (sudokuMatrix[row][column].isHint) { //Skip Hint cells, as they won't be edited and are correct to begin with
-		cout << index << " is a hint" << endl;
 		return solveBT(index + 1);
 	}
 	set<char> choices = getChoices(row, column); //Get applicable numbers to put in cell
 
-	cout << "Choices for " << index << " are: " << endl; //Debug code
-	for (auto iter = choices.begin(); iter != choices.end(); iter++)
-		cout << *iter << ", ";
-
-	cout << endl;
 	for (auto iter = choices.begin(); iter != choices.end(); iter++) { //Iterate through applicable numbers, assign to cell, and try to solve next cell
 		sudokuMatrix[row][column].value = *iter;
 		if (solveBT(index + 1) == false) { //If a dead end was reached using the number chosen, use another applicable number
-			//cout << "Choosing " << *iter << " at " << index << " led to a dead end" << endl;
 			continue;
 		}
 		else { //Case where sudoku was solved using the cell's chosen number; returns true to conclude all nested calls
